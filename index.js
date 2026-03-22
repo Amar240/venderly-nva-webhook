@@ -33,7 +33,15 @@ app.post('/webhook/nva', async (req, res) => {
     const result = await response.json();
 
     if (!response.ok) {
-      console.error('GHL API Error:', JSON.stringify(result, null, 2));
+      const errorMsg = `
+        GHL API Error - Sub-account creation failed
+        Customer: ${data.first_name} ${data.last_name}
+        Email: ${data.email}
+        Business: ${data.company_name}
+        Error: ${JSON.stringify(result)}
+        Time: ${new Date().toISOString()}
+      `;
+      console.error(errorMsg);
       return res.status(response.status).json({ 
         success: false, 
         error: 'GHL API failed', 
