@@ -8,6 +8,7 @@
     "dev": "node --watch index.js"
   },
   "dependencies": {
+    "@aws-sdk/client-sns": "^3.1017.0",
     "dotenv": "^17.3.1",
     "express": "^4.21.0",
     "zipcode-to-timezone": "^0.0.9"

@@ -1,4 +1,6 @@
 require('dotenv').config();
+const { SNSClient, PublishCommand } = require('@aws-sdk/client-sns');
+const sns = new SNSClient({ region: 'us-east-2' });
 const express = require('express');
 const { buildLocationPayload } = require('./location-builder');
 
@@ -42,6 +44,13 @@ app.post('/webhook/nva', async (req, res) => {
         Time: ${new Date().toISOString()}
       `;
       console.error(errorMsg);
+
+      await sns.send(new PublishCommand({
+        TopicArn: process.env.SNS_TOPIC_ARN,
+        Subject: '⚠️ Venderly NVA Failed',
+        Message: errorMsg
+      }));
+
       return res.status(response.status).json({ 
         success: false, 
         error: 'GHL API failed', 
