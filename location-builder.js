@@ -12,6 +12,12 @@ const SNAPSHOT_MAP = {
 function buildLocationPayload(data) {
   const timezone = getTimezone(data.postal_code);
 
+  const snapshotId = SNAPSHOT_MAP[data.customer_type]
+    || SNAPSHOT_MAP['default'];
+
+  console.log('Customer type:', data.customer_type);
+  console.log('Snapshot ID selected:', snapshotId);
+
   return {
     name: data.company_name,
     companyId: process.env.GHL_COMPANY_ID,
@@ -37,4 +43,5 @@ function buildLocationPayload(data) {
   };
 }
 
-module.exports = { buildLocationPayload };
+// Export snapshot map so index.js can use it after account creation
+module.exports = { buildLocationPayload, SNAPSHOT_MAP };
