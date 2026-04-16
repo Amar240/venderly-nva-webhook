@@ -1,13 +1,16 @@
 {
-  "name": "venderly-nva-webhook",
+  "name": "venderly-provisioning-finance-automation",
   "version": "1.0.0",
-  "description": "Venderly automated sub-account creation server",
-  "main": "index.js",
+  "description": "Student-owned service for GoHighLevel provisioning and Stripe onboarding",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node --watch index.js"
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "check": "find src tests -name '*.js' -exec node --check {} \\;",
+    "test": "node --test tests/*.test.js"
   },
   "dependencies": {
+    "@aws-sdk/client-ses": "^3.1031.0",
     "@aws-sdk/client-sns": "^3.1029.0",
     "dotenv": "^17.3.1",
     "express": "^4.21.0",

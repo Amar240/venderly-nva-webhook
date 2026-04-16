@@ -6,29 +6,25 @@ const SNAPSHOT_MAP = {
   'School (District)': process.env.SNAPSHOT_SCHOOL,
   'Nonprofit': process.env.SNAPSHOT_NONPROFIT,
   'Bank or Fintech': process.env.SNAPSHOT_BANK,
-  'default': process.env.SNAPSHOT_DEFAULT
+  default: process.env.SNAPSHOT_DEFAULT
 };
 
-function buildLocationPayload(data) {
-  const timezone = getTimezone(data.postal_code);
+function getSnapshotId(customerType) {
+  return SNAPSHOT_MAP[customerType] || SNAPSHOT_MAP.default || null;
+}
 
-  const snapshotId = SNAPSHOT_MAP[data.customer_type]
-    || SNAPSHOT_MAP['default'];
-
-  console.log('Customer type:', data.customer_type);
-  console.log('Snapshot ID selected:', snapshotId);
-
+function buildLocationPayload(data, options = {}) {
   return {
     name: data.company_name,
-    companyId: process.env.GHL_COMPANY_ID,
+    companyId: options.companyId,
     phone: data.phone,
-    address: data.address,
+    address: data.address1 || data.address,
     city: data.city,
     state: data.state,
     country: data.country || 'US',
     postalCode: data.postal_code,
     website: data.website || '',
-    timezone: timezone,
+    timezone: getTimezone(data.postal_code),
     settings: {
       allowDuplicateContact: false,
       allowDuplicateOpportunity: false,
@@ -43,5 +39,4 @@ function buildLocationPayload(data) {
   };
 }
 
-// Export snapshot map so index.js can use it after account creation
-module.exports = { buildLocationPayload, SNAPSHOT_MAP };
+module.exports = { buildLocationPayload, getSnapshotId };

@@ -1,3 +1,7 @@
 node_modules
 .env
-.gitignore
+.claude
+.idea
+.git
+docs
+tests
