@@ -12,8 +12,11 @@ module.exports = async function webhookNvaRoute(req, res) {
 
     const { locationId } = await createLocation(data);
 
+    // Handle both field names — NVA form sends business_type, code expects customer_type
+    const customerType = data.customer_type || data.business_type;
+
     // Apply GHL snapshot template (non-critical — failure does not block Stripe)
-    const snapshotId = getSnapshotId(data.customer_type);
+    const snapshotId = getSnapshotId(customerType);
     if (snapshotId) {
       try {
         await applySnapshot(locationId, snapshotId);
@@ -31,7 +34,7 @@ module.exports = async function webhookNvaRoute(req, res) {
         lastName: data.last_name,
         phone: data.phone,
         locationId,
-        customerType: data.customer_type
+        customerType  // ← fixed — uses the resolved customerType
       });
 
       // Send onboarding email (non-critical — failure does not block response)

@@ -14,6 +14,9 @@ function getSnapshotId(customerType) {
 }
 
 function buildLocationPayload(data, options = {}) {
+  // Handle both field names — NVA form sends business_type, code expects customer_type
+  const customerType = data.customer_type || data.business_type;
+
   return {
     name: data.company_name,
     companyId: options.companyId,
