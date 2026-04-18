@@ -1,5 +1,3 @@
-require('dotenv').config({ quiet: true });
-
 function getEnv() {
   return {
     port: Number(process.env.PORT || 3000),

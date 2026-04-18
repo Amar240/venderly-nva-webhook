@@ -1,16 +1,15 @@
 const { getTimezone } = require('./timezone');
 
-const SNAPSHOT_MAP = {
-  'Small Business': process.env.SNAPSHOT_SMALL_BUSINESS,
-  'Side Hustle': process.env.SNAPSHOT_SIDE_HUSTLE,
-  'School (District)': process.env.SNAPSHOT_SCHOOL,
-  'Nonprofit': process.env.SNAPSHOT_NONPROFIT,
-  'Bank or Fintech': process.env.SNAPSHOT_BANK,
-  default: process.env.SNAPSHOT_DEFAULT
-};
-
 function getSnapshotId(customerType) {
-  return SNAPSHOT_MAP[customerType] || SNAPSHOT_MAP.default || null;
+  const snapshotMap = {
+    'Small Business':    process.env.SNAPSHOT_SMALL_BUSINESS,
+    'Side Hustle':       process.env.SNAPSHOT_SIDE_HUSTLE,
+    'School (District)': process.env.SNAPSHOT_SCHOOL,
+    'Nonprofit':         process.env.SNAPSHOT_NONPROFIT,
+    'Bank or Fintech':   process.env.SNAPSHOT_BANK,
+    default:             process.env.SNAPSHOT_DEFAULT,
+  };
+  return snapshotMap[customerType] || snapshotMap.default || null;
 }
 
 function buildLocationPayload(data, options = {}) {
