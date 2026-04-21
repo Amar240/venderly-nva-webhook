@@ -84,7 +84,12 @@ async function applySnapshot(locationId, snapshotId) {
       Accept: 'application/json',
       Version: '2021-07-28'
     },
-    body: JSON.stringify({ snapshotId })
+    body: JSON.stringify({
+      snapshot: {
+        id: snapshotId,
+        override: false
+      }
+    })
   });
 
   const result = await parseResponseBody(response);
