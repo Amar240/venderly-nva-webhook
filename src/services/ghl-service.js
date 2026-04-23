@@ -1,3 +1,4 @@
+require('dotenv').config({ quiet: true });
 const { getEnv } = require('../config/env');
 const { buildLocationPayload } = require('../utils/location-builder');
 const logger = require('../utils/logger');
@@ -16,11 +17,7 @@ class GhlApiError extends Error {
 
 async function parseResponseBody(response) {
   const body = await response.text();
-
-  if (!body) {
-    return {};
-  }
-
+  if (!body) return {};
   try {
     return JSON.parse(body);
   } catch (error) {
@@ -102,9 +99,69 @@ async function applySnapshot(locationId, snapshotId) {
   return result;
 }
 
+async function getLocationToken(locationId) {
+  const { ghlAccessToken, ghlCompanyId } = getEnv();
+
+  const response = await fetch('https://services.leadconnectorhq.com/oauth/locationToken', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${ghlAccessToken}`,
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Version: '2021-07-28'
+    },
+    body: JSON.stringify({
+      companyId: ghlCompanyId,
+      locationId
+    })
+  });
+
+  const result = await parseResponseBody(response);
+
+  if (!response.ok) {
+    throw new Error(`Location token exchange failed (${response.status}): ${JSON.stringify(result)}`);
+  }
+
+  logger.info('Location token obtained for:', { locationId });
+  return result.access_token;
+}
+
+async function updateContactStripeUrl(contactId, locationId, stripeUrl) {
+  const locationToken = await getLocationToken(locationId);
+
+  const response = await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${locationToken}`,
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Version: '2021-07-28'
+    },
+    body: JSON.stringify({
+      customFields: [
+        {
+          key: 'stripe_url',
+          field_value: stripeUrl
+        }
+      ]
+    })
+  });
+
+  const result = await parseResponseBody(response);
+
+  if (!response.ok) {
+    throw new Error(`Contact update failed (${response.status}): ${JSON.stringify(result)}`);
+  }
+
+  logger.info('Contact stripe_url updated:', { contactId, locationId });
+  return result;
+}
+
 module.exports = {
   GhlApiError,
   createLocation,
   applySnapshot,
-  formatGhlErrorMessage
+  formatGhlErrorMessage,
+  getLocationToken,
+  updateContactStripeUrl
 };

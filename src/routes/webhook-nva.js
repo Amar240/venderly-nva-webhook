@@ -1,4 +1,4 @@
-const { GhlApiError, createLocation, applySnapshot, formatGhlErrorMessage } = require('../services/ghl-service');
+const { GhlApiError, createLocation, applySnapshot, formatGhlErrorMessage, updateContactStripeUrl } = require('../services/ghl-service');
 const { publishProvisioningFailure } = require('../services/sns-service');
 const { createStripeAccount } = require('../services/stripe-service');
 const { sendOnboardingEmail } = require('../services/email-service');
@@ -12,10 +12,8 @@ module.exports = async function webhookNvaRoute(req, res) {
 
     const { locationId } = await createLocation(data);
 
-    // Handle both field names — NVA form sends business_type, code expects customer_type
     const customerType = data.customer_type || data.business_type;
 
-    // Apply GHL snapshot template (non-critical — failure does not block Stripe)
     const snapshotId = getSnapshotId(customerType);
     if (snapshotId) {
       try {
@@ -34,10 +32,21 @@ module.exports = async function webhookNvaRoute(req, res) {
         lastName: data.last_name,
         phone: data.phone,
         locationId,
-        customerType  // ← fixed — uses the resolved customerType
+        customerType
       });
 
-      // Send onboarding email (non-critical — failure does not block response)
+      // Update GHL contact with Stripe onboarding URL (non-critical)
+      if (data.contactId) {
+        try {
+          await updateContactStripeUrl(data.contactId, locationId, stripeResult.onboardingUrl);
+        } catch (contactErr) {
+          logger.error('Contact stripe_url update failed (non-critical):', { message: contactErr.message });
+        }
+      } else {
+        logger.info('No contactId in webhook — skipping contact update');
+      }
+
+      // Send onboarding email (non-critical)
       try {
         await sendOnboardingEmail({
           toEmail: data.email,
@@ -72,10 +81,8 @@ module.exports = async function webhookNvaRoute(req, res) {
   } catch (error) {
     if (error instanceof GhlApiError) {
       const errorMessage = formatGhlErrorMessage(error.customerData, error.details);
-
       logger.error(errorMessage);
       await publishProvisioningFailure(errorMessage);
-
       return res.status(error.status).json({
         success: false,
         error: 'GHL API failed',
