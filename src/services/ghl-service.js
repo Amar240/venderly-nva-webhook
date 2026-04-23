@@ -99,6 +99,7 @@ async function applySnapshot(locationId, snapshotId) {
   return result;
 }
 
+// Keep getLocationToken in case needed later
 async function getLocationToken(locationId) {
   const { ghlAccessToken, ghlCompanyId } = getEnv();
 
@@ -126,13 +127,14 @@ async function getLocationToken(locationId) {
   return result.access_token;
 }
 
+// Uses agency token directly — skips location token exchange
 async function updateContactStripeUrl(contactId, locationId, stripeUrl) {
-  const locationToken = await getLocationToken(locationId);
+  const { ghlAccessToken } = getEnv();
 
   const response = await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}`, {
     method: 'PUT',
     headers: {
-      Authorization: `Bearer ${locationToken}`,
+      Authorization: `Bearer ${ghlAccessToken}`,
       'Content-Type': 'application/json',
       Accept: 'application/json',
       Version: '2021-07-28'
