@@ -127,7 +127,7 @@ async function getLocationToken(locationId) {
   return result.access_token;
 }
 
-async function sendStripeUrlToGhl(contactId, stripeUrl) {
+async function sendStripeUrlToGhl(contactId, email, stripeUrl) {
   const { ghlInboundWebhookUrl } = getEnv();
 
   const response = await fetch(ghlInboundWebhookUrl, {
@@ -138,6 +138,7 @@ async function sendStripeUrlToGhl(contactId, stripeUrl) {
     },
     body: JSON.stringify({
       contactId,
+      email,
       stripe_url: stripeUrl
     })
   });

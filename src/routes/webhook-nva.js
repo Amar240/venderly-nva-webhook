@@ -37,7 +37,7 @@ module.exports = async function webhookNvaRoute(req, res) {
       // Update GHL contact with Stripe onboarding URL (non-critical)
       if (data.contactId) {
         try {
-          await sendStripeUrlToGhl(data.contactId, stripeResult.onboardingUrl);
+          await sendStripeUrlToGhl(data.contactId, data.email, stripeResult.onboardingUrl);
         } catch (contactErr) {
           logger.error('Contact stripe_url update failed (non-critical):', { message: contactErr.message });
         }
