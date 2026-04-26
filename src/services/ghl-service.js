@@ -127,35 +127,28 @@ async function getLocationToken(locationId) {
   return result.access_token;
 }
 
-// Uses agency token directly — skips location token exchange
-async function updateContactStripeUrl(contactId, locationId, stripeUrl) {
-  const { ghlAccessToken } = getEnv();
+async function sendStripeUrlToGhl(contactId, stripeUrl) {
+  const { ghlInboundWebhookUrl } = getEnv();
 
-  const response = await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}`, {
-    method: 'PUT',
+  const response = await fetch(ghlInboundWebhookUrl, {
+    method: 'POST',
     headers: {
-      Authorization: `Bearer ${ghlAccessToken}`,
       'Content-Type': 'application/json',
-      Accept: 'application/json',
-      Version: '2021-07-28'
+      Accept: 'application/json'
     },
     body: JSON.stringify({
-      customFields: [
-        {
-          key: 'stripe_url',
-          field_value: stripeUrl
-        }
-      ]
+      contactId,
+      stripe_url: stripeUrl
     })
   });
 
   const result = await parseResponseBody(response);
 
   if (!response.ok) {
-    throw new Error(`Contact update failed (${response.status}): ${JSON.stringify(result)}`);
+    throw new Error(`GHL inbound webhook failed (${response.status}): ${JSON.stringify(result)}`);
   }
 
-  logger.info('Contact stripe_url updated:', { contactId, locationId });
+  logger.info('Stripe URL sent to GHL inbound webhook:', { contactId });
   return result;
 }
 
@@ -165,5 +158,5 @@ module.exports = {
   applySnapshot,
   formatGhlErrorMessage,
   getLocationToken,
-  updateContactStripeUrl
+  sendStripeUrlToGhl
 };

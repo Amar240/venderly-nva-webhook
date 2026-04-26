@@ -8,6 +8,7 @@ const logger = require('./utils/logger');
 const REQUIRED_VARS = [
   'GHL_ACCESS_TOKEN',
   'GHL_COMPANY_ID',
+  'GHL_INBOUND_WEBHOOK_URL',
   'STRIPE_SECRET_KEY',
   'STRIPE_WEBHOOK_SECRET',
   'SNS_TOPIC_ARN',

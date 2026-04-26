@@ -1,7 +1,6 @@
-const { GhlApiError, createLocation, applySnapshot, formatGhlErrorMessage, updateContactStripeUrl } = require('../services/ghl-service');
+const { GhlApiError, createLocation, applySnapshot, formatGhlErrorMessage, sendStripeUrlToGhl } = require('../services/ghl-service');
 const { publishProvisioningFailure } = require('../services/sns-service');
 const { createStripeAccount } = require('../services/stripe-service');
-const { sendOnboardingEmail } = require('../services/email-service');
 const { getSnapshotId } = require('../utils/location-builder');
 const logger = require('../utils/logger');
 
@@ -38,23 +37,12 @@ module.exports = async function webhookNvaRoute(req, res) {
       // Update GHL contact with Stripe onboarding URL (non-critical)
       if (data.contactId) {
         try {
-          await updateContactStripeUrl(data.contactId, locationId, stripeResult.onboardingUrl);
+          await sendStripeUrlToGhl(data.contactId, stripeResult.onboardingUrl);
         } catch (contactErr) {
           logger.error('Contact stripe_url update failed (non-critical):', { message: contactErr.message });
         }
       } else {
         logger.info('No contactId in webhook — skipping contact update');
-      }
-
-      // Send onboarding email (non-critical)
-      try {
-        await sendOnboardingEmail({
-          toEmail: data.email,
-          firstName: data.first_name,
-          onboardingUrl: stripeResult.onboardingUrl
-        });
-      } catch (emailErr) {
-        logger.error('Email send failed (non-critical):', { message: emailErr.message });
       }
 
       return res.json({
