@@ -1,5 +1,6 @@
 const { GhlApiError, createLocation, applySnapshot, formatGhlErrorMessage, sendStripeUrlToGhl } = require('../services/ghl-service');
 const { publishProvisioningFailure } = require('../services/sns-service');
+const { saveSubaccountCssGroup } = require('../services/css-service');
 const { createStripeAccount } = require('../services/stripe-service');
 const { getSnapshotId } = require('../utils/location-builder');
 const logger = require('../utils/logger');
@@ -22,6 +23,12 @@ module.exports = async function webhookNvaRoute(req, res) {
         await publishProvisioningFailure(`Snapshot failed for ${data.company_name} (${locationId}): ${snapErr.message}`);
       }
     }
+    // Save subaccount CSS group to DynamoDB (non-critical)
+    try {
+        await saveSubaccountCssGroup(locationId, customerType);
+        } catch (cssErr) {
+            logger.error('CSS group save failed (non-critical):', { message: cssErr.message });
+        }
 
     try {
       const stripeResult = await createStripeAccount({

@@ -6,9 +6,12 @@ const webhookStripeRoute = require('./routes/webhook-stripe');
 
 const app = express();
 
+// Routes that don't need JSON body parsing
 app.get('/health', healthRoute);
+app.get('/agency.css', require('./routes/agency-css'));
 app.post('/webhook/stripe', express.raw({ type: 'application/json' }), webhookStripeRoute);
 
+// JSON middleware for routes that need it
 app.use(express.json());
 
 app.post('/webhook/nva', webhookNvaRoute);

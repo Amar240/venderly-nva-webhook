@@ -10,8 +10,11 @@
     "test": "node --test tests/*.test.js"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1040.0",
+    "@aws-sdk/client-s3": "^3.1040.0",
     "@aws-sdk/client-ses": "^3.1031.0",
     "@aws-sdk/client-sns": "^3.1029.0",
+    "@aws-sdk/lib-dynamodb": "^3.1040.0",
     "dotenv": "^17.3.1",
     "express": "^4.21.0",
     "stripe": "^22.0.1",
