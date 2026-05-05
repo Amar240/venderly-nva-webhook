@@ -74,7 +74,7 @@ To verify the codebase without AWS access:
 git clone https://github.com/Amar240/venderly-nva-webhook
 cd venderly-nva-webhook
 npm install
-npm test       # 7 tests, no AWS required
+npm test       # 9 tests, no AWS required
 npm run check  # lint + format check, no AWS required
 ```
 

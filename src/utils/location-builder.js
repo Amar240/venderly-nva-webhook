@@ -1,15 +1,22 @@
 const { getTimezone } = require('./timezone');
 
+const SNAPSHOT_ENV_BY_CUSTOMER_TYPE = Object.freeze({
+  'Small Business': 'SNAPSHOT_SMALL_BUSINESS',
+  'Side Hustle': 'SNAPSHOT_SIDE_HUSTLE',
+  'School (District)': 'SNAPSHOT_SCHOOL',
+  Nonprofit: 'SNAPSHOT_NONPROFIT',
+  'Bank or Fintech': 'SNAPSHOT_BANK'
+});
+
+const SUPPORTED_CUSTOMER_TYPES = Object.freeze(Object.keys(SNAPSHOT_ENV_BY_CUSTOMER_TYPE));
+
+function isSupportedCustomerType(customerType) {
+  return SUPPORTED_CUSTOMER_TYPES.includes(customerType);
+}
+
 function getSnapshotId(customerType) {
-  const snapshotMap = {
-    'Small Business':    process.env.SNAPSHOT_SMALL_BUSINESS,
-    'Side Hustle':       process.env.SNAPSHOT_SIDE_HUSTLE,
-    'School (District)': process.env.SNAPSHOT_SCHOOL,
-    'Nonprofit':         process.env.SNAPSHOT_NONPROFIT,
-    'Bank or Fintech':   process.env.SNAPSHOT_BANK,
-    default:             process.env.SNAPSHOT_DEFAULT,
-  };
-  return snapshotMap[customerType] || snapshotMap.default || null;
+  const snapshotEnvName = SNAPSHOT_ENV_BY_CUSTOMER_TYPE[customerType];
+  return (snapshotEnvName && process.env[snapshotEnvName]) || process.env.SNAPSHOT_DEFAULT || null;
 }
 
 function buildLocationPayload(data, options = {}) {
@@ -41,4 +48,9 @@ function buildLocationPayload(data, options = {}) {
   };
 }
 
-module.exports = { buildLocationPayload, getSnapshotId };
+module.exports = {
+  SUPPORTED_CUSTOMER_TYPES,
+  buildLocationPayload,
+  getSnapshotId,
+  isSupportedCustomerType
+};
