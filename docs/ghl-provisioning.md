@@ -23,4 +23,3 @@ The GoHighLevel provisioning flow is handled by `src/services/ghl-service.js`.
 ## Notes
 
 - The payload builder now prefers `address1` and falls back to `address`
-- Snapshot mapping has been removed because it was not used in the active API request

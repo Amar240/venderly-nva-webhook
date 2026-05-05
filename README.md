@@ -11,6 +11,25 @@ This repository contains a small Node.js service that:
 
 The codebase is intentionally simple and student-friendly: Express routes in `src/routes/`, integration logic in `src/services/`, and small helpers in `src/utils/`.
 
+## Production Status
+
+Service deployed on AWS App Runner: https://tn4e9g7353.us-east-2.awsapprunner.com
+
+Live since January 2026.
+
+Currently provisioning 67+ customer sub-accounts in production.
+
+Snapshots are applied during provisioning through the active GoHighLevel location flow.
+
+## Architecture
+
+Single Express service deployed on AWS App Runner that orchestrates:
+
+- GoHighLevel sub-account creation (with snapshot template applied per customer type)
+- Stripe Connect onboarding link generation
+- DynamoDB-backed dynamic CSS theming for sub-accounts
+- SNS error alerting (downstream consumed by AI Debug Assistant)
+
 ## Project Structure
 
 ```text
@@ -47,6 +66,18 @@ docs/        project notes and API flow
 
 The server listens on `PORT` and defaults to `3000`.
 
+## Quickstart for Reviewers
+
+To verify the codebase without AWS access:
+
+```bash
+git clone https://github.com/Amar240/venderly-nva-webhook
+cd venderly-nva-webhook
+npm install
+npm test       # 7 tests, no AWS required
+npm run check  # lint + format check, no AWS required
+```
+
 ## Environment Variables
 
 | Variable | Purpose |
@@ -80,4 +111,3 @@ npm start
 
 - `POST /webhook/stripe` uses raw-body parsing so Stripe signature verification works correctly.
 - The GoHighLevel payload builder prefers `address1` and falls back to `address`.
-- Snapshot mapping was removed because it was not part of the accepted GoHighLevel location payload.
