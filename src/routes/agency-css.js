@@ -1,6 +1,7 @@
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
 const { getAllSubaccounts } = require('../services/css-service');
 const { getEnv } = require('../config/env');
+const { escapeCssClassSelector } = require('../utils/css-escape');
 const logger = require('../utils/logger');
 
 async function getS3CssRules(cssGroup) {
@@ -24,11 +25,11 @@ module.exports = async function agencyCssRoute(req, res) {
     // Group by cssGroup
     const schoolIds = subaccounts
       .filter(a => a.cssGroup === 'SCHOOL')
-      .map(a => `.${a.locationId}`);
+      .map(a => escapeCssClassSelector(a.locationId));
 
     const proIds = subaccounts
       .filter(a => a.cssGroup === 'PRO')
-      .map(a => `.${a.locationId}`);
+      .map(a => escapeCssClassSelector(a.locationId));
 
     // Get CSS rules from S3
     const [schoolRules, proRules] = await Promise.all([
