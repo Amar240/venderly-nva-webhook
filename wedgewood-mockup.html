@@ -1,0 +1,830 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wedgewood Swim Club — Check-In Mockup</title>
+  <style>
+    :root {
+      --navy: #0F172A;
+      --ink: #1E293B;
+      --muted: #64748B;
+      --rule: #E2E8F0;
+      --bg: #F0F9FF;
+      --card: #FFFFFF;
+      --primary: #0EA5E9;
+      --primary-dark: #0284C7;
+      --success: #10B981;
+      --success-bg: #ECFDF5;
+      --danger: #EF4444;
+      --danger-bg: #FEF2F2;
+      --gold: #F59E0B;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: -apple-system, "Inter", "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(180deg, #F0F9FF 0%, #E0F2FE 100%);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* TOP BAR */
+    .topbar {
+      max-width: 1280px;
+      margin: 0 auto 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      padding: 12px 20px;
+    }
+    .topbar h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--navy);
+    }
+    .topbar h1 .mockup-tag {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      background: var(--rule);
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .view-toggle { display: flex; gap: 8px; }
+    .view-toggle button {
+      background: white;
+      border: 1px solid var(--rule);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--ink);
+    }
+    .view-toggle button:hover { border-color: var(--primary); }
+    .view-toggle button.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* CONTAINERS */
+    .stage { max-width: 1280px; margin: 0 auto; }
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ============== MEMBER VIEW (phone frame) ============== */
+    .phone-stage {
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
+    }
+    .phone-label {
+      font-size: 13px; color: var(--muted); font-weight: 500;
+    }
+    .phone-frame {
+      width: 390px;
+      background: white;
+      border-radius: 36px;
+      border: 12px solid #1E293B;
+      box-shadow: 0 30px 60px -20px rgba(15,23,42,0.3);
+      overflow: hidden;
+    }
+    .phone-screen {
+      padding: 24px 24px 32px;
+      min-height: 720px;
+      display: flex;
+      flex-direction: column;
+    }
+    .phone-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+    }
+    .phone-logo {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--primary) 0%, #0284C7 100%);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 700; font-size: 14px;
+    }
+    .phone-title {
+      font-size: 11px; color: var(--muted); font-weight: 500;
+      letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .phone-h1 {
+      font-size: 26px; font-weight: 700; color: var(--navy);
+      letter-spacing: -0.5px; margin-bottom: 4px;
+    }
+    .phone-sub {
+      font-size: 14px; color: var(--muted); margin-bottom: 24px;
+    }
+
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block;
+      font-size: 12px; font-weight: 600; color: var(--ink);
+      margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .field input, .field select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--rule);
+      border-radius: 10px;
+      font-size: 15px;
+      color: var(--ink);
+      background: white;
+      transition: border 0.15s;
+    }
+    .field input:focus, .field select:focus {
+      outline: none; border-color: var(--primary);
+    }
+    .field .req { color: var(--danger); }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 12px;
+      box-shadow: 0 4px 12px rgba(14,165,233,0.3);
+    }
+    .submit-btn:hover { transform: translateY(-1px); }
+    .submit-btn:disabled { opacity: 0.6; cursor: wait; }
+
+    .hint {
+      margin-top: 16px;
+      font-size: 11px; color: var(--muted); text-align: center;
+    }
+
+    /* Result card */
+    .result-card {
+      display: none;
+      animation: slideIn 0.4s ease-out;
+      padding: 32px 24px;
+      border-radius: 16px;
+      text-align: center;
+      margin-top: 8px;
+    }
+    .result-card.show { display: block; }
+    .result-card.success {
+      background: var(--success-bg);
+      border: 2px solid var(--success);
+    }
+    .result-card.failure {
+      background: var(--danger-bg);
+      border: 2px solid var(--danger);
+    }
+    .result-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 32px; color: white; font-weight: 700;
+    }
+    .result-card.success .result-icon { background: var(--success); }
+    .result-card.failure .result-icon { background: var(--danger); }
+    .result-title {
+      font-size: 22px; font-weight: 700; margin-bottom: 8px;
+    }
+    .result-card.success .result-title { color: #047857; }
+    .result-card.failure .result-title { color: #B91C1C; }
+    .result-body { font-size: 14px; color: var(--ink); line-height: 1.5; }
+    .result-actions { margin-top: 20px; }
+    .ghost-btn {
+      background: white;
+      border: 1.5px solid var(--rule);
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--ink);
+    }
+    .signup-btn {
+      background: var(--danger);
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .demo-controls {
+      margin-top: 24px;
+      padding: 16px;
+      background: rgba(255,255,255,0.7);
+      border: 1px dashed var(--rule);
+      border-radius: 10px;
+      max-width: 390px;
+    }
+    .demo-controls h3 {
+      font-size: 11px; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      font-weight: 600; margin-bottom: 8px;
+    }
+    .demo-controls p {
+      font-size: 12px; color: var(--ink); line-height: 1.5;
+    }
+    .demo-controls code {
+      background: #F1F5F9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      color: var(--primary-dark);
+    }
+
+    /* ============== STAFF DASHBOARD VIEW ============== */
+    .ipad-frame {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid var(--rule);
+      box-shadow: 0 20px 50px -20px rgba(15,23,42,0.15);
+      overflow: hidden;
+    }
+    .ipad-header {
+      background: var(--navy);
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .ipad-brand {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .ipad-brand .phone-logo { width: 36px; height: 36px; font-size: 16px; }
+    .ipad-brand-name { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+    .ipad-brand-sub { font-size: 11px; opacity: 0.7; }
+    .ipad-stats {
+      display: flex; gap: 24px;
+    }
+    .ipad-stat-num {
+      font-size: 22px; font-weight: 700; line-height: 1;
+    }
+    .ipad-stat-label {
+      font-size: 10px; opacity: 0.7;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .ipad-body {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 24px;
+      padding: 24px;
+      background: #F8FAFC;
+      min-height: 720px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .card-title {
+      font-size: 11px; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      font-weight: 700; margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .live-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--success); animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Live feed */
+    .feed-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .feed-item:last-child { border-bottom: none; }
+    .feed-item.new {
+      animation: highlight 1.5s ease-out;
+    }
+    @keyframes highlight {
+      0% { background: var(--success-bg); padding-left: 12px; padding-right: 12px; margin: 0 -12px; border-radius: 8px;}
+      100% { background: transparent; padding-left: 0; padding-right: 0; margin: 0;}
+    }
+    .feed-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 16px;
+      flex-shrink: 0;
+    }
+    .feed-avatar.fail { background: linear-gradient(135deg, var(--danger), #B91C1C); }
+    .feed-info { flex: 1; min-width: 0; }
+    .feed-name {
+      font-size: 16px; font-weight: 600; color: var(--navy);
+      letter-spacing: -0.2px;
+    }
+    .feed-meta {
+      font-size: 12px; color: var(--muted); margin-top: 2px;
+    }
+    .feed-tags { display: flex; gap: 6px; margin-top: 6px; }
+    .tag {
+      font-size: 10px; padding: 2px 8px; border-radius: 4px;
+      font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .tag-member { background: var(--success-bg); color: #047857; }
+    .tag-guest { background: #FEF3C7; color: #92400E; }
+    .tag-paid { background: #DBEAFE; color: #1E40AF; }
+    .tag-fail { background: var(--danger-bg); color: #B91C1C; }
+    .feed-time {
+      font-size: 12px; color: var(--muted); white-space: nowrap;
+    }
+
+    /* Search */
+    .search-input {
+      width: 100%;
+      padding: 14px 16px 14px 44px;
+      border: 1.5px solid var(--rule);
+      border-radius: 10px;
+      font-size: 15px;
+      background: white url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'><circle cx='11' cy='11' r='8'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>") no-repeat 14px center;
+    }
+    .search-input:focus { outline: none; border-color: var(--primary); }
+    .search-results { margin-top: 12px; max-height: 280px; overflow-y: auto; }
+    .search-result {
+      padding: 12px 14px;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .search-result:hover {
+      border-color: var(--primary);
+      background: #F0F9FF;
+    }
+    .sr-info { flex: 1; min-width: 0; }
+    .sr-name { font-size: 14px; font-weight: 600; color: var(--navy); }
+    .sr-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .checkin-btn {
+      background: var(--success);
+      color: white; border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12px; font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Insights */
+    .insights-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .insight {
+      padding: 16px;
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      background: white;
+    }
+    .insight-num {
+      font-size: 28px; font-weight: 800; color: var(--navy);
+      letter-spacing: -0.5px; line-height: 1;
+    }
+    .insight-label {
+      font-size: 11px; color: var(--muted); margin-top: 4px;
+      text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600;
+    }
+    .insight-trend { font-size: 11px; color: var(--success); margin-top: 6px; font-weight: 600; }
+    .sparkline {
+      display: flex; gap: 3px; align-items: flex-end;
+      height: 30px; margin-top: 8px;
+    }
+    .sparkline div {
+      flex: 1;
+      background: var(--primary);
+      border-radius: 2px 2px 0 0;
+      opacity: 0.85;
+    }
+
+    /* Footer note */
+    .footer-note {
+      max-width: 1280px;
+      margin: 24px auto 0;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <h1>🏊‍♀️ Wedgewood Swim Club — Check-In System
+    <span class="mockup-tag">MOCKUP</span>
+  </h1>
+  <div class="view-toggle">
+    <button id="btn-member" class="active" onclick="switchView('member')">📱 Member View</button>
+    <button id="btn-staff" onclick="switchView('staff')">📋 Staff Dashboard</button>
+  </div>
+</header>
+
+<main class="stage">
+
+<!-- ============================================================== -->
+<!-- MEMBER VIEW                                                     -->
+<!-- ============================================================== -->
+<section id="view-member" class="view active">
+  <div class="phone-stage">
+
+    <div class="phone-label">📱 What members see on their phone when they scan the QR at the gate</div>
+
+    <div class="phone-frame">
+      <div class="phone-screen">
+
+        <!-- Form state -->
+        <div id="form-state">
+          <div class="phone-header">
+            <div class="phone-logo">W</div>
+            <div class="phone-title">Wedgewood Swim Club</div>
+          </div>
+          <h2 class="phone-h1">Pool Check-In</h2>
+          <p class="phone-sub">Welcome! Please confirm your visit.</p>
+
+          <div class="field-row">
+            <div class="field">
+              <label>First name <span class="req">*</span></label>
+              <input id="f-first" type="text" placeholder="John" />
+            </div>
+            <div class="field">
+              <label>Last name <span class="req">*</span></label>
+              <input id="f-last" type="text" placeholder="Smith" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Phone <span class="req">*</span></label>
+            <input id="f-phone" type="tel" placeholder="(302) 555-0100" />
+          </div>
+
+          <div class="field">
+            <label>Membership name <span class="req">*</span></label>
+            <input id="f-membership" type="text" placeholder="Smith Family" />
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>Members attending <span class="req">*</span></label>
+              <select id="f-count">
+                <option>1</option><option>2</option>
+                <option selected>3</option><option>4</option><option>5</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Any guests?</label>
+              <select id="f-guests">
+                <option value="0">No</option>
+                <option value="1">1 guest</option>
+                <option value="2">2 guests</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="submit-btn" onclick="submitForm()">Check In</button>
+
+          <p class="hint">Demo tip: type <code style="background:#F1F5F9;padding:2px 6px;border-radius:4px;font-size:11px;">Smith</code> as last name = active member.<br>Anything else = not found.</p>
+        </div>
+
+        <!-- Result state -->
+        <div id="result-state" style="display:none">
+          <div class="result-card" id="result-success">
+            <div class="result-icon">✓</div>
+            <div class="result-title">Welcome, <span id="r-name">Smith</span> family!</div>
+            <div class="result-body">
+              Your check-in is confirmed.<br>
+              <span id="r-detail">3 members attending</span>.<br><br>
+              Have a great swim today! 🏊
+            </div>
+            <div class="result-actions">
+              <button class="ghost-btn" onclick="resetForm()">Done</button>
+            </div>
+          </div>
+          <div class="result-card" id="result-failure">
+            <div class="result-icon">✕</div>
+            <div class="result-title">Membership not found</div>
+            <div class="result-body">
+              We couldn't find an active membership matching your information.<br><br>
+              Please see the front desk OR sign up online to get started.
+            </div>
+            <div class="result-actions">
+              <button class="signup-btn">Sign up for membership →</button>
+              <button class="ghost-btn" onclick="resetForm()" style="margin-top:8px">Back</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="demo-controls">
+      <h3>How this works (for Ryan)</h3>
+      <p>
+        Member scans the QR at the gate → this form opens on their phone → they fill it out → instant green or red answer on the same screen. Email confirmation arrives a few seconds later as a receipt.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ============================================================== -->
+<!-- STAFF DASHBOARD VIEW                                            -->
+<!-- ============================================================== -->
+<section id="view-staff" class="view">
+
+  <div style="text-align:center;margin-bottom:16px">
+    <div class="phone-label">📋 What lifeguards see on the iPad at the front desk</div>
+  </div>
+
+  <div class="ipad-frame">
+
+    <header class="ipad-header">
+      <div class="ipad-brand">
+        <div class="phone-logo">W</div>
+        <div>
+          <div class="ipad-brand-name">Wedgewood — Front Desk</div>
+          <div class="ipad-brand-sub" id="staff-date">Saturday, May 23 · 2:47 PM</div>
+        </div>
+      </div>
+      <div class="ipad-stats">
+        <div>
+          <div class="ipad-stat-num" id="stat-today">87</div>
+          <div class="ipad-stat-label">Today</div>
+        </div>
+        <div>
+          <div class="ipad-stat-num">+12%</div>
+          <div class="ipad-stat-label">vs last week</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="ipad-body">
+
+      <!-- LEFT: Live feed -->
+      <div class="card">
+        <div class="card-title">
+          <span class="live-dot"></span> Live check-in feed
+        </div>
+        <div id="feed-list">
+          <!-- Will be populated by JS -->
+        </div>
+      </div>
+
+      <!-- RIGHT: Search + Insights -->
+      <div style="display:flex;flex-direction:column;gap:20px">
+
+        <div class="card">
+          <div class="card-title">Find a member</div>
+          <input class="search-input" id="search-box" type="text"
+                 placeholder="Type a last name..."
+                 oninput="onSearch(this.value)" />
+          <div class="search-results" id="search-results"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Today's activity</div>
+          <div class="insights-grid">
+            <div class="insight">
+              <div class="insight-num">87</div>
+              <div class="insight-label">Check-ins</div>
+              <div class="insight-trend">↑ 12% vs last Sat</div>
+            </div>
+            <div class="insight">
+              <div class="insight-num">73</div>
+              <div class="insight-label">Members</div>
+            </div>
+            <div class="insight">
+              <div class="insight-num">14</div>
+              <div class="insight-label">Guests</div>
+              <div class="insight-trend" style="color:var(--gold)">$70 in guest fees</div>
+            </div>
+            <div class="insight">
+              <div class="insight-num">3</div>
+              <div class="insight-label">New signups</div>
+              <div class="insight-trend">this month</div>
+            </div>
+          </div>
+          <div style="margin-top:14px">
+            <div class="insight-label" style="margin-bottom:6px">7-day trend</div>
+            <div class="sparkline">
+              <div style="height:30%"></div>
+              <div style="height:55%"></div>
+              <div style="height:70%"></div>
+              <div style="height:50%"></div>
+              <div style="height:80%"></div>
+              <div style="height:65%"></div>
+              <div style="height:100%"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+<p class="footer-note">
+  Mockup data only. Real system writes to AWS DynamoDB and reads from Wedgewood's GoHighLevel contacts.
+</p>
+
+</main>
+
+<script>
+// ====================== view switching ======================
+function switchView(view) {
+  document.getElementById('view-member').classList.toggle('active', view === 'member');
+  document.getElementById('view-staff').classList.toggle('active', view === 'staff');
+  document.getElementById('btn-member').classList.toggle('active', view === 'member');
+  document.getElementById('btn-staff').classList.toggle('active', view === 'staff');
+}
+
+// ====================== member form ======================
+function submitForm() {
+  const last = document.getElementById('f-last').value.trim();
+  const first = document.getElementById('f-first').value.trim();
+  const count = document.getElementById('f-count').value;
+  const guests = document.getElementById('f-guests').value;
+
+  if (!last || !first) {
+    alert('Please fill in name fields');
+    return;
+  }
+
+  document.getElementById('form-state').style.display = 'none';
+  document.getElementById('result-state').style.display = 'block';
+
+  const isValid = last.toLowerCase().includes('smith') ||
+                  last.toLowerCase().includes('jones') ||
+                  last.toLowerCase().includes('patel') ||
+                  last.toLowerCase().includes('lee');
+
+  document.getElementById('r-name').textContent = last;
+  let detail = `${count} member${count > 1 ? 's' : ''} attending`;
+  if (guests > 0) detail += ` + ${guests} guest${guests > 1 ? 's' : ''}`;
+  document.getElementById('r-detail').textContent = detail;
+
+  document.getElementById('result-success').classList.toggle('show', isValid);
+  document.getElementById('result-failure').classList.toggle('show', !isValid);
+
+  // After 2 seconds, add this person to the staff dashboard feed
+  if (isValid) {
+    addToFeed({
+      name: `${last} family`,
+      detail: detail,
+      tags: guests > 0 ? ['member', 'guest', 'paid'] : ['member'],
+      time: 'just now'
+    });
+  }
+}
+
+function resetForm() {
+  document.getElementById('form-state').style.display = 'block';
+  document.getElementById('result-state').style.display = 'none';
+  document.getElementById('result-success').classList.remove('show');
+  document.getElementById('result-failure').classList.remove('show');
+  document.getElementById('f-first').value = '';
+  document.getElementById('f-last').value = '';
+  document.getElementById('f-phone').value = '';
+  document.getElementById('f-membership').value = '';
+}
+
+// ====================== staff dashboard data ======================
+const fakeFeed = [
+  { name: 'Patel family', detail: '4 attending + 1 guest', tags: ['member', 'guest', 'paid'], time: '2 min ago' },
+  { name: 'Marcus Johnson', detail: '1 member', tags: ['member'], time: '4 min ago' },
+  { name: 'Lee family', detail: '3 attending', tags: ['member'], time: '7 min ago' },
+  { name: 'Anonymous', detail: 'Membership not found', tags: ['fail'], time: '8 min ago' },
+  { name: 'Smith family', detail: '4 attending', tags: ['member'], time: '11 min ago' },
+  { name: 'Davis family', detail: '2 attending + 2 guests', tags: ['member', 'guest', 'paid'], time: '14 min ago' },
+  { name: 'Wong family', detail: '3 attending', tags: ['member'], time: '18 min ago' },
+  { name: 'Chen family', detail: '5 attending', tags: ['member'], time: '22 min ago' },
+];
+
+function renderFeed() {
+  const list = document.getElementById('feed-list');
+  list.innerHTML = fakeFeed.map((item, i) => {
+    const initial = item.name.charAt(0);
+    const isFail = item.tags.includes('fail');
+    const avatarClass = isFail ? 'feed-avatar fail' : 'feed-avatar';
+    const tagsHtml = item.tags.map(t => {
+      const cls = t === 'member' ? 'tag-member' :
+                  t === 'guest' ? 'tag-guest' :
+                  t === 'paid' ? 'tag-paid' : 'tag-fail';
+      const label = t === 'member' ? 'Member' :
+                    t === 'guest' ? 'Guest' :
+                    t === 'paid' ? 'Paid' : 'Not found';
+      return `<span class="tag ${cls}">${label}</span>`;
+    }).join('');
+    return `
+      <div class="feed-item ${i === 0 && item.time === 'just now' ? 'new' : ''}">
+        <div class="${avatarClass}">${initial}</div>
+        <div class="feed-info">
+          <div class="feed-name">${item.name}</div>
+          <div class="feed-meta">${item.detail}</div>
+          <div class="feed-tags">${tagsHtml}</div>
+        </div>
+        <div class="feed-time">${item.time}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function addToFeed(item) {
+  fakeFeed.unshift(item);
+  if (fakeFeed.length > 10) fakeFeed.pop();
+  renderFeed();
+  // Increment today count
+  const stat = document.getElementById('stat-today');
+  stat.textContent = parseInt(stat.textContent) + 1;
+}
+
+// ====================== search ======================
+const fakeMembers = [
+  { name: 'Smith family', meta: 'John Smith (primary) · 4 members · Active', tag: 'active' },
+  { name: 'Jones family', meta: 'Sarah Jones (primary) · 3 members · Active', tag: 'active' },
+  { name: 'Patel family', meta: 'Anil Patel (primary) · 4 members · Active', tag: 'active' },
+  { name: 'Lee family', meta: 'Min Lee (primary) · 3 members · Active', tag: 'active' },
+  { name: 'Davis family', meta: 'Mike Davis (primary) · 2 members · Active', tag: 'active' },
+  { name: 'Wong family', meta: 'Lily Wong (primary) · 3 members · Active', tag: 'active' },
+  { name: 'Chen family', meta: 'David Chen (primary) · 5 members · Active', tag: 'active' },
+  { name: 'Brown family', meta: 'Pat Brown (primary) · 2 members · LAPSED', tag: 'lapsed' },
+];
+
+function onSearch(q) {
+  const box = document.getElementById('search-results');
+  if (!q || q.length < 1) { box.innerHTML = ''; return; }
+  const matches = fakeMembers.filter(m => m.name.toLowerCase().includes(q.toLowerCase()));
+  if (matches.length === 0) {
+    box.innerHTML = `<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No members found.<br><br><button class="signup-btn" style="width:auto;padding:10px 16px">Add as new signup</button></div>`;
+    return;
+  }
+  box.innerHTML = matches.map(m => {
+    const isActive = m.tag === 'active';
+    return `
+      <div class="search-result">
+        <div class="sr-info">
+          <div class="sr-name">${m.name}</div>
+          <div class="sr-meta">${m.meta}</div>
+        </div>
+        ${isActive
+          ? `<button class="checkin-btn" onclick="checkInMember('${m.name}')">Check In</button>`
+          : `<span class="tag tag-fail">Lapsed</span>`}
+      </div>
+    `;
+  }).join('');
+}
+
+function checkInMember(name) {
+  addToFeed({
+    name: name,
+    detail: 'Manual check-in by staff',
+    tags: ['member'],
+    time: 'just now'
+  });
+  document.getElementById('search-box').value = '';
+  document.getElementById('search-results').innerHTML =
+    `<div style="padding:14px;text-align:center;color:var(--success);font-size:13px;font-weight:600">✓ ${name} checked in</div>`;
+  setTimeout(() => { document.getElementById('search-results').innerHTML = ''; }, 2000);
+}
+
+// init
+renderFeed();
+</script>
+
+</body>
+</html>

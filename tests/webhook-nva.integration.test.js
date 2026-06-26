@@ -109,7 +109,12 @@ test('POST /webhook/nva provisions GHL, applies snapshot, and creates Stripe onb
   assert.deepEqual(deps.applySnapshot.mock.calls[0].arguments, ['loc_123', 'snap_small_business']);
 
   assert.equal(deps.saveSubaccountCssGroup.mock.calls.length, 1);
-  assert.deepEqual(deps.saveSubaccountCssGroup.mock.calls[0].arguments, ['loc_123', 'Small Business']);
+  assert.deepEqual(deps.saveSubaccountCssGroup.mock.calls[0].arguments, [{
+    locationId: 'loc_123',
+    customerType: 'Small Business',
+    businessName: 'Venderly Test Bakery',
+    contactEmail: 'nia@example.com'
+  }]);
 
   assert.equal(deps.createStripeAccount.mock.calls.length, 1);
   assert.deepEqual(deps.createStripeAccount.mock.calls[0].arguments[0], {

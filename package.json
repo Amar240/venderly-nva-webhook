@@ -7,7 +7,11 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "check": "find src tests -name '*.js' -exec node --check {} \\;",
-    "test": "node --test tests/*.test.js"
+    "test": "node --test tests/*.test.js",
+    "backfill-names": "node scripts/backfill-account-names.js",
+    "backfill-names-dry": "node scripts/backfill-account-names.js --dry-run",
+    "add-missing-ids": "node scripts/add-missing-location-ids.js",
+    "add-missing-ids-dry": "node scripts/add-missing-location-ids.js --dry-run"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.1040.0",

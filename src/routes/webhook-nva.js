@@ -50,7 +50,12 @@ function createWebhookNvaRoute(dependencies = {}) {
       }
       // Save subaccount CSS group to DynamoDB (non-critical)
       try {
-        await saveSubaccountCssGroup(locationId, customerType);
+        await saveSubaccountCssGroup({
+          locationId,
+          customerType,
+          businessName: data.company_name || '',
+          contactEmail: data.email || ''
+        });
       } catch (cssErr) {
         routeLogger.error('CSS group save failed (non-critical):', { message: cssErr.message });
       }
