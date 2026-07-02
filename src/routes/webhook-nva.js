@@ -1,4 +1,5 @@
 const defaultGhlService = require('../services/ghl-service');
+const defaultGhlUserService = require('../services/ghl-user-service');
 const defaultSnsService = require('../services/sns-service');
 const defaultCssService = require('../services/css-service');
 const defaultStripeService = require('../services/stripe-service');
@@ -8,6 +9,7 @@ const logger = require('../utils/logger');
 function createWebhookNvaRoute(dependencies = {}) {
   const {
     ghlService = defaultGhlService,
+    ghlUserService = defaultGhlUserService,
     snsService = defaultSnsService,
     cssService = defaultCssService,
     stripeService = defaultStripeService,
@@ -18,7 +20,8 @@ function createWebhookNvaRoute(dependencies = {}) {
   } = dependencies;
 
   const { GhlApiError, createLocation, applySnapshot, formatGhlErrorMessage, sendStripeUrlToGhl } = ghlService;
-  const { publishProvisioningFailure } = snsService;
+  const { GhlUserApiError, createSubAccountUser } = ghlUserService;
+  const { publishAlert, publishProvisioningFailure } = snsService;
   const { saveSubaccountCssGroup } = cssService;
   const { createStripeAccount } = stripeService;
 
@@ -48,6 +51,35 @@ function createWebhookNvaRoute(dependencies = {}) {
           await publishProvisioningFailure(`Snapshot failed for ${data.company_name} (${locationId}): ${snapErr.message}`);
         }
       }
+
+      // Create GHL user so the customer can log in (non-critical).
+      try {
+        await createSubAccountUser({
+          locationId,
+          email: data.email,
+          firstName: data.first_name,
+          lastName: data.last_name,
+          phone: data.phone || ''
+        });
+        routeLogger.info(`GHL user created for ${data.email} on location ${locationId}`);
+      } catch (userErr) {
+        routeLogger.error('GHL user creation failed', {
+          message: userErr.message,
+          email: data.email,
+          locationId
+        });
+
+        const isDuplicate = GhlUserApiError && userErr instanceof GhlUserApiError && userErr.likelyDuplicate;
+        const subject = isDuplicate
+          ? `GHL user already exists for ${data.email} on location ${locationId}`
+          : `GHL user creation failed for ${data.email} on location ${locationId}`;
+        const message = isDuplicate
+          ? `A GHL user already exists for ${data.email} on location ${locationId}. They may already have access; verify manually.`
+          : `Manual user creation required for ${data.email} on location ${locationId}. Error: ${userErr.message}`;
+
+        await publishAlert(subject, message);
+      }
+
       // Save subaccount CSS group to DynamoDB (non-critical)
       try {
         await saveSubaccountCssGroup({
