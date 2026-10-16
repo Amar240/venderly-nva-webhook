@@ -1,6 +1,7 @@
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
 const { DynamoDBDocumentClient, PutCommand, ScanCommand } = require('@aws-sdk/lib-dynamodb');
 const { getEnv } = require('../config/env');
+const { isSchoolCustomerType } = require('../utils/location-builder');
 const logger = require('../utils/logger');
 
 const CSS_GROUPS = Object.freeze({
@@ -23,7 +24,7 @@ function isValidCssGroup(cssGroup) {
 }
 
 function getCssGroup(customerType) {
-  if (customerType === 'School (District)') return CSS_GROUPS.SCHOOL;
+  if (isSchoolCustomerType(customerType)) return CSS_GROUPS.SCHOOL;
   return CSS_GROUPS.PRO;
 }
 

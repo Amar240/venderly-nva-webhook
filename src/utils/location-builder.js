@@ -1,17 +1,28 @@
 const { getTimezone } = require('./timezone');
 
+// Keys are the literal option labels the NVA form sends. The form's single
+// "School (District)" option was split into "School" and "District Office";
+// District Office is handled manually and never reaches this webhook. The old
+// label stays supported so retried webhooks and existing DynamoDB rows keep working.
 const SNAPSHOT_ENV_BY_CUSTOMER_TYPE = Object.freeze({
   'Small Business': 'SNAPSHOT_SMALL_BUSINESS',
   'Side Hustle': 'SNAPSHOT_SIDE_HUSTLE',
+  School: 'SNAPSHOT_SCHOOL',
   'School (District)': 'SNAPSHOT_SCHOOL',
   Nonprofit: 'SNAPSHOT_NONPROFIT',
   'Bank or Fintech': 'SNAPSHOT_BANK'
 });
 
+const SCHOOL_CUSTOMER_TYPES = Object.freeze(['School', 'School (District)']);
+
 const SUPPORTED_CUSTOMER_TYPES = Object.freeze(Object.keys(SNAPSHOT_ENV_BY_CUSTOMER_TYPE));
 
 function isSupportedCustomerType(customerType) {
   return SUPPORTED_CUSTOMER_TYPES.includes(customerType);
+}
+
+function isSchoolCustomerType(customerType) {
+  return SCHOOL_CUSTOMER_TYPES.includes(customerType);
 }
 
 function getSnapshotId(customerType) {
@@ -49,8 +60,10 @@ function buildLocationPayload(data, options = {}) {
 }
 
 module.exports = {
+  SCHOOL_CUSTOMER_TYPES,
   SUPPORTED_CUSTOMER_TYPES,
   buildLocationPayload,
   getSnapshotId,
+  isSchoolCustomerType,
   isSupportedCustomerType
 };
